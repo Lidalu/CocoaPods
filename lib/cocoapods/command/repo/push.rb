@@ -34,6 +34,7 @@ module Pod
             ['--skip-tests', 'Lint skips building and running tests during validation'],
             ['--commit-message="Fix bug in pod"', 'Add custom commit message. ' \
             'Opens default editor if no commit message is specified.'],
+            ['--push-branch=master', 'Push Repo To the customer Branch', '(defaluts to master branch).'],
             ['--use-json', 'Push JSON spec to repo'],
             ['--swift-version=VERSION', 'The SWIFT_VERSION that should be used when linting the spec. ' \
              'This takes precedence over a .swift-version file.'],
@@ -58,6 +59,7 @@ module Pod
           @skip_import_validation = argv.flag?('skip-import-validation', false)
           @skip_tests = argv.flag?('skip-tests', false)
           @allow_overwrite = argv.flag?('overwrite', true)
+          @branch = argv.option('push-branch', nil)
           super
         end
 
@@ -225,8 +227,13 @@ module Pod
         # @return [void]
         #
         def push_repo
-          UI.puts "\nPushing the `#{@repo}' repo\n".yellow
-          repo_git('-C', repo_dir, 'push', 'origin', 'master')
+          if @branch && !@branch.empty?
+             branch = @branch
+          else
+             branch = "master"
+          end
+          UI.puts "\nPushing the `#{@repo}' repo #{branch} Branch\n".yellow
+          repo_git('-C', repo_dir, 'push', 'origin', branch)
         end
 
         #---------------------------------------------------------------------#
